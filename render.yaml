@@ -2,10 +2,6 @@ services:
   - type: web
     name: coinleads
     runtime: python
-services:
-  - type: web
-    name: coinleads
-    runtime: python
     plan: free             # Render free plan; kept awake by UptimeRobot pinging /healthz
     buildCommand: echo "no dependencies"
     startCommand: python scraper.py
