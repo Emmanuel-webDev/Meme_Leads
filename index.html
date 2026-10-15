@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin leads · projects without websites</title>
+<style>
+/* Hallmark · macrostructure: Workbench · tone: utilitarian · theme: custom (warm-grey paper, lime accent) */
+:root{--paper:oklch(94% .01 105);--panel:oklch(97.5% .006 105);--card:oklch(100% 0 0);--ink:oklch(20% .01 105);--muted:oklch(52% .01 105);--line:oklch(88% .01 105);--accent:oklch(93% .2 118);--warn:oklch(62% .15 30);--ok:oklch(60% .13 145);--r:16px;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--font:"Avenir Next","Segoe UI",system-ui,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root{--paper:oklch(22% .01 105);--panel:oklch(26% .01 105);--card:oklch(30% .01 105);--ink:oklch(94% .01 105);--muted:oklch(70% .01 105);--line:oklch(38% .01 105)}}
+*{box-sizing:border-box}html,body{margin:0;overflow-x:clip}
+body{background:var(--paper);color:var(--ink);font:15px/1.45 var(--font);padding:var(--s3)}
+.app{max-width:1000px;margin:0 auto;background:var(--panel);border-radius:24px;padding:var(--s4)}
+header{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;justify-content:space-between;margin-bottom:var(--s4)}
+h1{font-size:28px;margin:0;font-weight:600;letter-spacing:-.02em}h1 small{font-size:14px;color:var(--muted);font-weight:400;margin-left:var(--s2)}
+.sync{font-size:13px;color:var(--muted);display:flex;gap:var(--s2);align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}.dot.live{background:var(--ok)}
+button,input,select{font:inherit;color:inherit}
+input,select{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:var(--s2) var(--s4);min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tabs{display:inline-flex;background:var(--ink);border-radius:999px;padding:var(--s1);gap:2px;overflow-x:auto;max-width:100%}
+.tabs button{border:0;background:none;color:var(--paper);padding:var(--s2) var(--s4);border-radius:999px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-pressed=true]{background:var(--card);color:var(--ink)}
+.bar{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s4)}.bar input[type=search]{flex:1 1 180px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:var(--s2) var(--s4);cursor:pointer;white-space:nowrap}
+.chip:hover{border-color:var(--ink)}.chip.on{background:var(--accent);border-color:transparent;color:oklch(20% .01 105)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:var(--s3)}
+.lead{background:var(--card);border-radius:var(--r);padding:var(--s4);display:flex;flex-direction:column;gap:var(--s2);min-width:0}
+.lead h2{font-size:17px;margin:0;font-weight:600;overflow-wrap:anywhere}.lead h2 span{color:var(--muted);font-weight:400}
+.meta{color:var(--muted);font-size:13px}
+.tags{display:flex;gap:var(--s2);flex-wrap:wrap}
+.tag{font-size:12px;padding:2px var(--s3);border-radius:999px;background:var(--accent);color:oklch(20% .01 105)}
+.tag.age{background:var(--line);color:var(--ink)}.tag.low{background:var(--warn);color:oklch(100% 0 0)}
+.lead dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px var(--s3);font-size:14px}.lead dt{color:var(--muted)}.lead dd{margin:0;overflow-wrap:anywhere}
+.acts{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:auto;padding-top:var(--s2)}
+.acts button,.acts a{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px var(--s3);font-size:13px;cursor:pointer;text-decoration:none;color:inherit;white-space:nowrap}
+.acts .main{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.empty{padding:var(--s5);text-align:center;color:var(--muted);grid-column:1/-1}
+.empty code{background:var(--card);padding:2px 6px;border-radius:6px;font-family:var(--mono)}
+details{margin-top:var(--s4);font-size:14px}details summary{cursor:pointer;color:var(--muted)}
+.set{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s2)}
+.note{font-size:13px;color:var(--muted);margin:var(--s3) 0 0}
+</style></head><body>
+<div class="app">
+<header>
+  <h1>Coin leads<small id="count"></small></h1>
+  <div class="sync"><span class="dot" id="dot"></span><span id="sync">Not loaded</span>
+  <button class="chip" id="refresh">Refresh now</button></div>
+</header>
+<div class="bar"><div class="tabs" id="tabs" role="group" aria-label="Outreach status"></div>
+<input type="search" id="q" placeholder="Search name, symbol, address" aria-label="Search"></div>
+<div class="bar" id="chips" role="group" aria-label="Contact filter"></div>
+<div class="bar"><select id="chain" aria-label="Chain"><option value="">All chains</option></select>
+<select id="liq" aria-label="Minimum liquidity"><option value="0">Any liquidity</option><option value="1000">$1k+ liquidity</option><option value="10000">$10k+ liquidity</option><option value="50000">$50k+ liquidity</option></select>
+<select id="age" aria-label="Maximum age"><option value="0">Any age</option><option value="60">Under 1 hour</option><option value="1440">Under 24 hours</option><option value="10080">Under 7 days</option></select>
+<select id="mcap" aria-label="Market cap"><option value="15000-250000">$15k to $250k</option><option value="15000-70000">$15k to $70k (pre-bond)</option><option value="50000-100000">$50k to $100k (near bond)</option><option value="any">Any market cap</option></select></div>
+<main class="grid" id="list"></main>
+<p class="note">Check the team before you commit. Take payment in fiat or stablecoin up front, never in the token.</p>
+<details><summary>Outreach settings and manual import</summary>
+<div class="set"><input id="me" placeholder="Your name"><input id="site" placeholder="Your portfolio link">
+<label class="chip">Import leads.json <input type="file" id="file" accept=".json" hidden></label></div></details>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let leads=[],status=store.get('cl_status',{}),next=0;
+const f={tab:'new',contact:'any',q:'',chain:'',liq:0,age:0,stage:'any',hasliq:false,mcap:'15000-250000'};
+let scanAt=0;
+const TABS=[['new','New'],['contacted','Contacted'],['replied','Replied'],['skip','Skipped']];
+const CONTACT=[['any','Any contact'],['tg','Has Telegram'],['x','Has X']];
+const STAGE=[['soon','Soon to bond'],['bonded','Bonded']];
+const inMcap=l=>{if(f.mcap==='any')return true;const[lo,hi]=f.mcap.split('-').map(Number),m=l.mcap||0;return m>=lo&&m<=hi};
+const stageOk=l=>f.stage==='any'||(f.stage==='soon'?!!l.soon:l.stage==='bonded');
+const ago=()=>{const m=Math.round((Date.now()-scanAt)/60000);return m<1?'just now':m+'m ago'};
+const safe=u=>/^https:\/\//i.test(u||'')?u:null; // scraped data is untrusted: https links only
+const h=(t,a,...k)=>{const e=document.createElement(t);for(const x in a||{})x==='class'?e.className=a[x]:x.startsWith('on')?e.addEventListener(x.slice(2),a[x]):e.setAttribute(x,a[x]);k.flat().forEach(c=>e.append(c));return e};
+const money=n=>!n?'–':n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e3?'$'+(n/1e3).toFixed(1)+'k':'$'+Math.round(n);
+const age=l=>l.pair_created?Math.max(0,Math.round((Date.now()-l.pair_created)/60000)):null;
+const fmtAge=m=>m===null?'age unknown':m<60?m+'m old':m<1440?Math.floor(m/60)+'h old':Math.floor(m/1440)+'d old';
+function chips(){
+  $('tabs').replaceChildren(...TABS.map(([k,l])=>h('button',{'aria-pressed':f.tab===k,onclick(){f.tab=k;chips();render()}},`${l} ${leads.filter(x=>(status[x.id]||'new')===k).length}`)));
+  $('chips').replaceChildren(...CONTACT.map(([k,l])=>h('button',{class:'chip'+(f.contact===k?' on':''),onclick(){f.contact=k;chips();render()}},l)),...STAGE.map(([k,l])=>h('button',{class:'chip'+(f.stage===k?' on':''),onclick(){f.stage=f.stage===k?'any':k;chips();render()}},l)),h('button',{class:'chip'+(f.hasliq?' on':''),onclick(){f.hasliq=!f.hasliq;chips();render()}},'With liquidity'));
+}
+function pitch(l){
+  const me=$('me').value||'',site=$('site').value||'';
+  return `Hey, I came across ${l.name}${l.symbol?` ($${l.symbol})`:''} on DexScreener and noticed there's no website listed. I build fast landing sites for token projects: tokenomics, roadmap, buy links, socials.\n\n${site?`Examples: ${site}\n\n`:''}Want me to send a quick mockup?\n\n${me}`;
+}
+function card(l){
+  const st=status[l.id]||'new',m=age(l);
+  const set=s=>()=>{status[l.id]=s;store.set('cl_status',status);chips();render()};
+  const link=(label,u,cls)=>safe(u)?h('a',{class:cls||'',href:u,target:'_blank',rel:'noopener noreferrer'},label):'';
+  return h('article',{class:'lead'},
+    h('div',{class:'tags'},h('span',{class:'tag'},'No website'),h('span',{class:'tag age'},fmtAge(m)),h('span',{class:'tag age'},l.chain),l.stage==='bonding'?h('span',{class:'tag'},(l.soon?'Soon to bond ':'Bonding ')+l.bond_pct+'%'):l.stage==='bonded'?h('span',{class:'tag'},'Bonded'):'',(l.liquidity||0)>0?h('span',{class:'tag'},'Liquidity '+money(l.liquidity)):h('span',{class:'tag low'},'No liquidity')),
+    h('h2',{},l.name,' ',h('span',{},l.symbol?'$'+l.symbol:'')),
+    h('dl',{},h('dt',{},'Liquidity'),h('dd',{},money(l.liquidity)),h('dt',{},'Mkt cap'),h('dd',{},money(l.mcap)),h('dt',{},'Contract'),h('dd',{},l.address)),
+    h('div',{class:'acts'},
+      link('Telegram',l.telegram,'main'),link('X',l.twitter),link('Discord',l.discord),link('DexScreener',l.dex_url),
+      h('button',{onclick(e){navigator.clipboard?.writeText(pitch(l)).then(()=>{e.target.textContent='Copied'})}},'Copy DM'),
+      st==='new'?h('button',{onclick:set('contacted')},'Mark contacted'):h('button',{onclick:set('new')},'Move to New'),
+      st==='contacted'?h('button',{onclick:set('replied')},'Got reply'):'',
+      st!=='skip'?h('button',{onclick:set('skip')},'Skip'):''));
+}
+function render(){
+  const q=f.q.toLowerCase();
+  const rows=leads.filter(l=>!l.website&&(status[l.id]||'new')===f.tab&&(!f.chain||l.chain===f.chain)&&(l.liquidity||0)>=f.liq&&(!f.hasliq||(l.liquidity||0)>0)&&inMcap(l)&&stageOk(l)&&(!f.age||(age(l)!==null&&age(l)<=f.age))&&(f.contact==='any'||(f.contact==='tg'?l.telegram:l.twitter))&&(!q||[l.name,l.symbol,l.address].join(' ').toLowerCase().includes(q))).sort((a,b)=>(b.found_at||'').localeCompare(a.found_at||''));
+  $('count').textContent=`${rows.length} shown / ${leads.length} total`;
+  $('list').replaceChildren(...(rows.length?rows.map(card):[h('div',{class:'empty'},leads.length?'No leads match these filters.':h('span',{},'No leads yet. Run ',h('code',{},'python3 scraper.py'),' and open the address it prints, or import a leads.json below.'))]));
+}
+function setData(d){leads=Array.isArray(d)?d:[];const c=[...new Set(leads.map(l=>l.chain).filter(Boolean))].sort();$('chain').replaceChildren(h('option',{value:''},'All chains'),...c.map(x=>h('option',{value:x},x)));$('chain').value=f.chain;chips();render()}
+async function load(){
+  next=Date.now()+60000;
+  try{const r=await fetch('leads.json?t='+Date.now());if(!r.ok)throw 0;scanAt=Date.parse(r.headers.get('Last-Modified'))||Date.now();setData(await r.json());$('dot').className='dot live'}
+  catch(e){$('dot').className='dot';$('sync').textContent='No leads.json found. Start scraper.py to serve it.';render()}
+}
+setInterval(()=>{const s=Math.max(0,Math.round((next-Date.now())/1000));if($('dot').classList.contains('live'))$('sync').textContent=`Live · last scan ${ago()} · scans every 10 min`;if(s===0)load()},1000);
+$('refresh').onclick=load;
+$('q').oninput=e=>{f.q=e.target.value;render()};
+$('chain').onchange=e=>{f.chain=e.target.value;render()};$('mcap').onchange=e=>{f.mcap=e.target.value;render()};$('liq').onchange=e=>{f.liq=+e.target.value;render()};$('age').onchange=e=>{f.age=+e.target.value;render()};
+for(const k of ['me','site']){$(k).value=store.get('cl_'+k,'');$(k).oninput=()=>{store.set('cl_'+k,$(k).value)}}
+$('file').onchange=async e=>{try{setData(JSON.parse(await e.target.files[0].text()));$('sync').textContent='Imported manually'}catch(x){$('sync').textContent='That file is not valid JSON.'}};
+chips();render();load();
+</script></body></html>

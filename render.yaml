@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: coinleads
+    runtime: python
+    plan: starter          # free plans sleep and lose disk data; the 5-min loop needs an always-on service
+    buildCommand: echo "no dependencies"
+    startCommand: python scraper.py
+    healthCheckPath: /healthz
+    disk:
+      name: leads
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: DASH_PASSWORD
+        sync: false        # Render asks you for this value on first deploy
+      - key: MIN_MCAP_USD
+        value: "15000"
+      - key: MAX_MCAP_USD
+        value: "250000"
+      - key: BOND_MCAP_USD
+        value: "69000"
+      - key: INTERVAL
+        value: "600"
+      - key: PYTHON_VERSION
+        value: 3.12.4
