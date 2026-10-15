@@ -7,7 +7,7 @@ social link to reach them on. GMGN, Axiom and Fomo have no public API and block
 scrapers, so they are not used.
 
 Every INTERVAL seconds (default 600) it adds new leads to leads.json and serves the dashboard.
-Standard library only.   Run:  python3 scraper.py   (http://localhost:8000)
+Standard library only.   Run:  python3 scraper.py   (http://localhost:8001)
 """
 import email.utils, http.server, json, os, sys, threading, time, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone, timedelta
@@ -185,7 +185,7 @@ def serve(port):
     print(f"Dashboard on port {port}" + (" (password protected)" if PASSWORD else " (NO PASSWORD SET)"), flush=True)
 
 if __name__ == "__main__":
-    serve(int(os.environ.get("PORT", "8000")))
+    serve(int(os.environ.get("PORT", "8001")))
     while True:
         try: cycle()
         except Exception as e: print(f"[{time.strftime('%H:%M:%S')}] cycle error: {e}", flush=True)
