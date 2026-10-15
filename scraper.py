@@ -20,6 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("DATA_DIR", HERE)  # point at a persistent disk when deployed
 os.makedirs(DATA_DIR, exist_ok=True)
 OUT = os.path.join(DATA_DIR, "leads.json")
+STATUS_FILE = os.path.join(DATA_DIR, "status.json")
 INTERVAL = int(os.environ.get("INTERVAL", "600"))  # seconds between scans (10 minutes)
 PASSWORD = os.environ.get("DASH_PASSWORD", "")
 RETENTION_DAYS = int(os.environ.get("RETENTION_DAYS", "14"))
@@ -83,6 +84,15 @@ def load():
     try:
         with open(OUT, "r", encoding="utf-8") as f: return json.load(f)
     except Exception: return []
+
+def load_status():
+    try:
+        with open(STATUS_FILE, "r", encoding="utf-8") as f: return json.load(f)
+    except Exception: return {}
+
+def save_status(data):
+    with open(STATUS_FILE + ".tmp", "w", encoding="utf-8") as f: json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(STATUS_FILE + ".tmp", STATUS_FILE)
 
 def now(): return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -179,6 +189,26 @@ def serve(port):
                 try:
                     with open(OUT, "rb") as f: return self.send(200, f.read(), "application/json", {"Last-Modified": email.utils.formatdate(os.path.getmtime(OUT), usegmt=True)})
                 except FileNotFoundError: return self.send(200, b"[]", "application/json")
+            if path == "/status.json":
+                try:
+                    with open(STATUS_FILE, "rb") as f: return self.send(200, f.read(), "application/json", {"Last-Modified": email.utils.formatdate(os.path.getmtime(STATUS_FILE), usegmt=True)})
+                except FileNotFoundError: return self.send(200, b"{}", "application/json")
+            self.send(404, b"Not found")
+        def do_POST(self):
+            if not self.authed(): return self.send(401, b"Password required")
+            path = urllib.parse.urlparse(self.path).path
+            if path == "/status":
+                try:
+                    length = int(self.headers.get("Content-Length", 0))
+                    body = json.loads(self.rfile.read(length).decode("utf-8", errors="replace"))
+                    lid = body.get("id"); st = body.get("status", "new"); by = (body.get("by") or "").strip()
+                    if lid:
+                        curr = load_status()
+                        curr[lid] = {"status": st, "by": by, "updated_at": now()}
+                        save_status(curr)
+                        return self.send(200, b'{"ok":true}', "application/json")
+                except Exception as e:
+                    return self.send(400, f'{{"error":"{e}"}}'.encode(), "application/json")
             self.send(404, b"Not found")
     srv = http.server.ThreadingHTTPServer(("0.0.0.0", port), H)
     threading.Thread(target=srv.serve_forever, daemon=True).start()

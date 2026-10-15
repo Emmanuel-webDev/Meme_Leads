@@ -2,26 +2,26 @@ services:
   - type: web
     name: coinleads
     runtime: python
-    plan: starter          # free plans sleep and lose disk data; the 5-min loop needs an always-on service
+services:
+  - type: web
+    name: coinleads
+    runtime: python
+    plan: free             # Render free plan; kept awake by UptimeRobot pinging /healthz
     buildCommand: echo "no dependencies"
     startCommand: python scraper.py
     healthCheckPath: /healthz
-    disk:
-      name: leads
-      mountPath: /data
-      sizeGB: 1
     envVars:
       - key: DATA_DIR
-        value: /data
+        value: .
       - key: DASH_PASSWORD
-        sync: false        # Render asks you for this value on first deploy
+        sync: false        # Render asks you for this value on first deploy (or set in Environment settings)
       - key: MIN_MCAP_USD
         value: "15000"
       - key: MAX_MCAP_USD
         value: "250000"
       - key: BOND_MCAP_USD
-        value: "69000"
+        value: "43000"     # Calibrated for current SOL price (~$102) pump.fun bonding
       - key: INTERVAL
-        value: "600"
+        value: "180"       # 3 minutes scan interval
       - key: PYTHON_VERSION
         value: 3.12.4

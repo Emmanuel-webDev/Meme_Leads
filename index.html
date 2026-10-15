@@ -62,6 +62,7 @@ details{margin-top:var(--s4);font-size:14px}details summary{cursor:pointer;color
 const $=id=>document.getElementById(id);
 const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let leads=[],status=store.get('cl_status',{}),next=0;
+const getStatus=id=>{const s=status[id];return(typeof s==='object'&&s!==null)?(s.status||'new'):(s||'new')};
 const f={tab:'new',contact:'any',q:'',chain:'',liq:0,age:0,stage:'any',hasliq:false,mcap:'15000-250000'};
 let scanAt=0;
 const TABS=[['new','New'],['contacted','Contacted'],['replied','Replied'],['skip','Skipped']];
@@ -76,7 +77,7 @@ const money=n=>!n?'–':n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e3?'$'+(n/1e3).toF
 const age=l=>l.pair_created?Math.max(0,Math.round((Date.now()-l.pair_created)/60000)):null;
 const fmtAge=m=>m===null?'age unknown':m<60?m+'m old':m<1440?Math.floor(m/60)+'h old':Math.floor(m/1440)+'d old';
 function chips(){
-  $('tabs').replaceChildren(...TABS.map(([k,l])=>h('button',{'aria-pressed':f.tab===k,onclick(){f.tab=k;chips();render()}},`${l} ${leads.filter(x=>(status[x.id]||'new')===k).length}`)));
+  $('tabs').replaceChildren(...TABS.map(([k,l])=>h('button',{'aria-pressed':f.tab===k,onclick(){f.tab=k;chips();render()}},`${l} ${leads.filter(x=>getStatus(x.id)===k).length}`)));
   $('chips').replaceChildren(...CONTACT.map(([k,l])=>h('button',{class:'chip'+(f.contact===k?' on':''),onclick(){f.contact=k;chips();render()}},l)),...STAGE.map(([k,l])=>h('button',{class:'chip'+(f.stage===k?' on':''),onclick(){f.stage=f.stage===k?'any':k;chips();render()}},l)),h('button',{class:'chip'+(f.hasliq?' on':''),onclick(){f.hasliq=!f.hasliq;chips();render()}},'With liquidity'));
 }
 function pitch(l){
@@ -84,11 +85,21 @@ function pitch(l){
   return `Hey, I came across ${l.name}${l.symbol?` ($${l.symbol})`:''} on DexScreener and noticed there's no website listed. I build fast landing sites for token projects: tokenomics, roadmap, buy links, socials.\n\n${site?`Examples: ${site}\n\n`:''}Want me to send a quick mockup?\n\n${me}`;
 }
 function card(l){
-  const st=status[l.id]||'new',m=age(l);
-  const set=s=>()=>{status[l.id]=s;store.set('cl_status',status);chips();render()};
+  const sObj=status[l.id];
+  const st=getStatus(l.id),m=age(l);
+  const who=sObj&&typeof sObj==='object'&&sObj.by?` · ${sObj.by}`:'';
+  const set=s=>async()=>{
+    const me=($('me').value||'').trim();
+    status[l.id]={status:s,by:me,updated_at:new Date().toISOString()};
+    store.set('cl_status',status);
+    chips();render();
+    try{
+      await fetch('/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:l.id,status:s,by:me})});
+    }catch(err){}
+  };
   const link=(label,u,cls)=>safe(u)?h('a',{class:cls||'',href:u,target:'_blank',rel:'noopener noreferrer'},label):'';
   return h('article',{class:'lead'},
-    h('div',{class:'tags'},h('span',{class:'tag'},'No website'),h('span',{class:'tag age'},fmtAge(m)),h('span',{class:'tag age'},l.chain),l.stage==='bonding'?h('span',{class:'tag'},(l.soon?'Soon to bond ':'Bonding ')+l.bond_pct+'%'):l.stage==='bonded'?h('span',{class:'tag'},'Bonded'):'',(l.liquidity||0)>0?h('span',{class:'tag'},'Liquidity '+money(l.liquidity)):h('span',{class:'tag low'},'No liquidity')),
+    h('div',{class:'tags'},h('span',{class:'tag'},'No website'),h('span',{class:'tag age'},fmtAge(m)),h('span',{class:'tag age'},l.chain),l.stage==='bonding'?h('span',{class:'tag'},(l.soon?'Soon to bond ':'Bonding ')+l.bond_pct+'%'):l.stage==='bonded'?h('span',{class:'tag'},'Bonded'):'',(l.liquidity||0)>0?h('span',{class:'tag'},'Liquidity '+money(l.liquidity)):h('span',{class:'tag low'},'No liquidity'),st!=='new'?h('span',{class:'tag',style:'background:var(--ink);color:var(--paper)'},st+who):''),
     h('h2',{},l.name,' ',h('span',{},l.symbol?'$'+l.symbol:'')),
     h('dl',{},h('dt',{},'Liquidity'),h('dd',{},money(l.liquidity)),h('dt',{},'Mkt cap'),h('dd',{},money(l.mcap)),h('dt',{},'Contract'),h('dd',{},l.address)),
     h('div',{class:'acts'},
@@ -100,14 +111,23 @@ function card(l){
 }
 function render(){
   const q=f.q.toLowerCase();
-  const rows=leads.filter(l=>!l.website&&(status[l.id]||'new')===f.tab&&(!f.chain||l.chain===f.chain)&&(l.liquidity||0)>=f.liq&&(!f.hasliq||(l.liquidity||0)>0)&&inMcap(l)&&stageOk(l)&&(!f.age||(age(l)!==null&&age(l)<=f.age))&&(f.contact==='any'||(f.contact==='tg'?l.telegram:l.twitter))&&(!q||[l.name,l.symbol,l.address].join(' ').toLowerCase().includes(q))).sort((a,b)=>(b.found_at||'').localeCompare(a.found_at||''));
+  const rows=leads.filter(l=>!l.website&&getStatus(l.id)===f.tab&&(!f.chain||l.chain===f.chain)&&(l.liquidity||0)>=f.liq&&(!f.hasliq||(l.liquidity||0)>0)&&inMcap(l)&&stageOk(l)&&(!f.age||(age(l)!==null&&age(l)<=f.age))&&(f.contact==='any'||(f.contact==='tg'?l.telegram:l.twitter))&&(!q||[l.name,l.symbol,l.address].join(' ').toLowerCase().includes(q))).sort((a,b)=>(b.found_at||'').localeCompare(a.found_at||''));
   $('count').textContent=`${rows.length} shown / ${leads.length} total`;
   $('list').replaceChildren(...(rows.length?rows.map(card):[h('div',{class:'empty'},leads.length?'No leads match these filters.':h('span',{},'No leads yet. Run ',h('code',{},'python3 scraper.py'),' and open the address it prints, or import a leads.json below.'))]));
 }
 function setData(d){leads=Array.isArray(d)?d:[];const c=[...new Set(leads.map(l=>l.chain).filter(Boolean))].sort();$('chain').replaceChildren(h('option',{value:''},'All chains'),...c.map(x=>h('option',{value:x},x)));$('chain').value=f.chain;chips();render()}
 async function load(){
   next=Date.now()+60000;
-  try{const r=await fetch('leads.json?t='+Date.now());if(!r.ok)throw 0;scanAt=Date.parse(r.headers.get('Last-Modified'))||Date.now();setData(await r.json());$('dot').className='dot live'}
+  try{
+    const [rLeads,rStatus]=await Promise.all([fetch('leads.json?t='+Date.now()),fetch('status.json?t='+Date.now()).catch(()=>null)]);
+    if(!rLeads.ok)throw 0;
+    scanAt=Date.parse(rLeads.headers.get('Last-Modified'))||Date.now();
+    if(rStatus&&rStatus.ok){
+      try{status=Object.assign({},status,await rStatus.json());store.set('cl_status',status)}catch(_){}
+    }
+    setData(await rLeads.json());
+    $('dot').className='dot live';
+  }
   catch(e){$('dot').className='dot';$('sync').textContent='No leads.json found. Start scraper.py to serve it.';render()}
 }
 setInterval(()=>{const s=Math.max(0,Math.round((next-Date.now())/1000));if($('dot').classList.contains('live'))$('sync').textContent=`Live · last scan ${ago()} · scans every 10 min`;if(s===0)load()},1000);
