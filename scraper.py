@@ -6,7 +6,7 @@ there once its team fills in a profile, so every lead already has at least one
 social link to reach them on. GMGN, Axiom and Fomo have no public API and block
 scrapers, so they are not used.
 
-Every INTERVAL seconds (default 600) it adds new leads to leads.json and serves the dashboard.
+Every INTERVAL seconds (default 180) it adds new leads to leads.json and serves the dashboard.
 Standard library only.   Run:  python3 scraper.py   (http://localhost:8001)
 """
 import email.utils, http.server, json, os, sys, threading, time, urllib.error, urllib.parse, urllib.request
@@ -21,7 +21,7 @@ DATA_DIR = os.environ.get("DATA_DIR", HERE)  # point at a persistent disk when d
 os.makedirs(DATA_DIR, exist_ok=True)
 OUT = os.path.join(DATA_DIR, "leads.json")
 STATUS_FILE = os.path.join(DATA_DIR, "status.json")
-INTERVAL = int(os.environ.get("INTERVAL", "600"))  # seconds between scans (10 minutes)
+INTERVAL = int(os.environ.get("INTERVAL", "180"))  # seconds between scans (3 minutes)
 PASSWORD = os.environ.get("DASH_PASSWORD", "")
 RETENTION_DAYS = int(os.environ.get("RETENTION_DAYS", "14"))
 MIN_LIQ = float(os.environ.get("MIN_LIQ_USD", "0"))
@@ -44,6 +44,8 @@ def get(url, retries=3, backoff=2.0):
             if e.code in (429, 500, 502, 503, 504) and attempt < retries - 1:
                 ra = e.headers.get("Retry-After")
                 wait = float(ra) if (ra and ra.isdigit()) else (backoff * (2 ** attempt))
+                if e.code == 429:
+                    print(f"[{time.strftime('%H:%M:%S')}] Rate limited (429) on {url}, backing off for {wait}s...", flush=True)
                 time.sleep(wait)
                 continue
             raise
@@ -119,6 +121,7 @@ def fetch_profiles():
     return list(seen.values())
 
 def cycle():
+    t0 = time.time()
     profiles = fetch_profiles()
     leads = load(); idx = {l["id"]: l for l in leads}; cand = []
     for p in profiles:
@@ -160,7 +163,8 @@ def cycle():
     with open(OUT + ".tmp", "w", encoding="utf-8") as f: json.dump(leads, f, ensure_ascii=False, indent=2)
     os.replace(OUT + ".tmp", OUT)  # file mtime = scan time, shown in the dashboard
     soon = sum(1 for l in leads if l.get("soon") and not l["website"])
-    print(f"[{time.strftime('%H:%M:%S')}] profiles={len(profiles)} candidates={len(cand)} added={added} refreshed={len(refresh)} soon_to_bond={soon} total={len(leads)}", flush=True)
+    dur = round(time.time() - t0, 1)
+    print(f"[{time.strftime('%H:%M:%S')}] profiles={len(profiles)} candidates={len(cand)} added={added} refreshed={len(refresh)} soon_to_bond={soon} total={len(leads)} took={dur}s", flush=True)
 
 def serve(port):
     import base64, hmac
@@ -180,15 +184,20 @@ def serve(port):
             self.end_headers(); self.wfile.write(body)
         def do_GET(self):
             path = urllib.parse.urlparse(self.path).path
-            if path == "/healthz": return self.send(200, b"ok")
+            if path == "/healthz": return self.send(200, b"ok", extra={"X-Scan-Interval": str(INTERVAL)})
             if not self.authed():
                 return self.send(401, b"Password required", extra={"WWW-Authenticate": 'Basic realm="Coin leads"'})
             if path in ("/", "/index.html"):
                 with open(os.path.join(HERE, "index.html"), "rb") as f: return self.send(200, f.read(), "text/html; charset=utf-8")
             if path == "/leads.json":
+                extra = {
+                    "Access-Control-Expose-Headers": "X-Scan-Interval, Last-Modified",
+                    "X-Scan-Interval": str(INTERVAL),
+                }
                 try:
-                    with open(OUT, "rb") as f: return self.send(200, f.read(), "application/json", {"Last-Modified": email.utils.formatdate(os.path.getmtime(OUT), usegmt=True)})
-                except FileNotFoundError: return self.send(200, b"[]", "application/json")
+                    extra["Last-Modified"] = email.utils.formatdate(os.path.getmtime(OUT), usegmt=True)
+                    with open(OUT, "rb") as f: return self.send(200, f.read(), "application/json", extra)
+                except FileNotFoundError: return self.send(200, b"[]", "application/json", extra)
             if path == "/status.json":
                 try:
                     with open(STATUS_FILE, "rb") as f: return self.send(200, f.read(), "application/json", {"Last-Modified": email.utils.formatdate(os.path.getmtime(STATUS_FILE), usegmt=True)})

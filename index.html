@@ -64,7 +64,8 @@ const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e)
 let leads=[],status=store.get('cl_status',{}),next=0;
 const getStatus=id=>{const s=status[id];return(typeof s==='object'&&s!==null)?(s.status||'new'):(s||'new')};
 const f={tab:'new',contact:'any',q:'',chain:'',liq:0,age:0,stage:'any',hasliq:false,mcap:'15000-250000'};
-let scanAt=0;
+let scanAt=0,scanIntervalSec=180;
+const fmtInterval=s=>{if(!s||s<60)return`${s||180}s`;const m=Math.round(s/60);return`${m} min`};
 const TABS=[['new','New'],['contacted','Contacted'],['replied','Replied'],['skip','Skipped']];
 const CONTACT=[['any','Any contact'],['tg','Has Telegram'],['x','Has X']];
 const STAGE=[['soon','Soon to bond'],['bonded','Bonded']];
@@ -122,6 +123,8 @@ async function load(){
     const [rLeads,rStatus]=await Promise.all([fetch('leads.json?t='+Date.now()),fetch('status.json?t='+Date.now()).catch(()=>null)]);
     if(!rLeads.ok)throw 0;
     scanAt=Date.parse(rLeads.headers.get('Last-Modified'))||Date.now();
+    const hdrInterval=parseInt(rLeads.headers.get('X-Scan-Interval')||rLeads.headers.get('x-scan-interval'),10);
+    if(hdrInterval&&!isNaN(hdrInterval))scanIntervalSec=hdrInterval;
     if(rStatus&&rStatus.ok){
       try{status=Object.assign({},status,await rStatus.json());store.set('cl_status',status)}catch(_){}
     }
@@ -130,7 +133,7 @@ async function load(){
   }
   catch(e){$('dot').className='dot';$('sync').textContent='No leads.json found. Start scraper.py to serve it.';render()}
 }
-setInterval(()=>{const s=Math.max(0,Math.round((next-Date.now())/1000));if($('dot').classList.contains('live'))$('sync').textContent=`Live · last scan ${ago()} · scans every 10 min`;if(s===0)load()},1000);
+setInterval(()=>{const s=Math.max(0,Math.round((next-Date.now())/1000));if($('dot').classList.contains('live'))$('sync').textContent=`Live · last scan ${ago()} · scans every ${fmtInterval(scanIntervalSec)}`;if(s===0)load()},1000);
 $('refresh').onclick=load;
 $('q').oninput=e=>{f.q=e.target.value;render()};
 $('chain').onchange=e=>{f.chain=e.target.value;render()};$('mcap').onchange=e=>{f.mcap=e.target.value;render()};$('liq').onchange=e=>{f.liq=+e.target.value;render()};$('age').onchange=e=>{f.age=+e.target.value;render()};

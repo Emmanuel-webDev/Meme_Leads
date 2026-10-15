@@ -13,13 +13,13 @@
     "discord": "",
     "found_at": "2026-10-15T11:46:37+00:00",
     "source": "DexScreener",
-    "liquidity": 9057.27,
-    "mcap": 15519,
+    "liquidity": 6486.7,
+    "mcap": 9035,
     "stage": "bonded",
     "bond_pct": null,
     "dex": "pumpswap",
     "soon": false,
-    "updated_at": "2026-10-15T12:09:55+00:00"
+    "updated_at": "2026-10-15T12:53:01+00:00"
   },
   {
     "id": "solana:AkqNPJ9tfNcTDywoi6SUNNL3tUGLBnPpGfGNUrgopump",
@@ -35,13 +35,13 @@
     "discord": "",
     "found_at": "2026-10-15T11:46:37+00:00",
     "source": "DexScreener",
-    "liquidity": 2390.52,
-    "mcap": 2090,
+    "liquidity": 2320.83,
+    "mcap": 2070,
     "stage": "bonded",
     "bond_pct": null,
     "dex": "pumpswap",
     "soon": false,
-    "updated_at": "2026-10-15T12:09:55+00:00"
+    "updated_at": "2026-10-15T12:53:01+00:00"
   },
   {
     "id": "solana:GnZzaABHtnysrEbRRz2qGfMGrU6n8WdZ4W3GjxGqeqSm",
@@ -58,12 +58,12 @@
     "found_at": "2026-10-15T11:46:37+00:00",
     "source": "DexScreener",
     "liquidity": 0,
-    "mcap": 16962.57,
+    "mcap": 16899.48,
     "stage": "bonding",
-    "bond_pct": 25,
+    "bond_pct": 24,
     "dex": "pumpfun",
     "soon": false,
-    "updated_at": "2026-10-15T12:09:55+00:00"
+    "updated_at": "2026-10-15T12:53:01+00:00"
   },
   {
     "id": "solana:APEesmoWve6N1qSD4CbApsJjdfhc9Nnp2fFgbfb53h2o",
@@ -79,13 +79,13 @@
     "discord": "",
     "found_at": "2026-10-15T11:46:37+00:00",
     "source": "DexScreener",
-    "liquidity": 11732.09,
-    "mcap": 23103,
+    "liquidity": 18841.92,
+    "mcap": 53620,
     "stage": "bonded",
     "bond_pct": null,
     "dex": "pumpswap",
     "soon": false,
-    "updated_at": "2026-10-15T12:09:55+00:00"
+    "updated_at": "2026-10-15T12:53:01+00:00"
   },
   {
     "id": "solana:93ySEbn1vrCkxRSTiaKnkhQGh9iqzS8DPNeDAbEMpump",
@@ -101,13 +101,13 @@
     "discord": "",
     "found_at": "2026-10-15T11:46:37+00:00",
     "source": "DexScreener",
-    "liquidity": 9790.25,
-    "mcap": 17086,
+    "liquidity": 6852.01,
+    "mcap": 9543,
     "stage": "bonded",
     "bond_pct": null,
     "dex": "pumpswap",
     "soon": false,
-    "updated_at": "2026-10-15T12:09:55+00:00"
+    "updated_at": "2026-10-15T12:53:01+00:00"
   },
   {
     "id": "solana:E4SWpfCdwjdYM5opir5WgXrc6ueWP1gZFv16o6Fwpump",
@@ -124,12 +124,12 @@
     "found_at": "2026-10-15T12:22:29+00:00",
     "source": "DexScreener",
     "liquidity": 0,
-    "mcap": 16129.35,
+    "mcap": 11802.21,
     "stage": "bonding",
-    "bond_pct": 23,
+    "bond_pct": 17,
     "dex": "pumpfun",
     "soon": false,
-    "updated_at": "2026-10-15T12:22:29+00:00"
+    "updated_at": "2026-10-15T12:53:01+00:00"
   },
   {
     "id": "solana:4jjQjDRYd7xLcFMViRsz4GvtgU6gPZgbVaxN3Rq9pump",
@@ -145,12 +145,56 @@
     "discord": "",
     "found_at": "2026-10-15T12:22:29+00:00",
     "source": "DexScreener",
-    "liquidity": 31347.44,
-    "mcap": 137069,
+    "liquidity": 28170.41,
+    "mcap": 112445,
     "stage": "bonded",
     "bond_pct": null,
     "dex": "pumpswap",
     "soon": false,
-    "updated_at": "2026-10-15T12:22:29+00:00"
+    "updated_at": "2026-10-15T12:53:01+00:00"
+  },
+  {
+    "id": "bsc:0x8c897f7039a8723a15ea27ebbd6e323d09357777",
+    "name": "Taigan Inu",
+    "symbol": "TI",
+    "chain": "bsc",
+    "address": "0x8c897f7039a8723a15ea27ebbd6e323d09357777",
+    "dex_url": "https://dexscreener.com/bsc/0x8c897f7039a8723a15ea27ebbd6e323d09357777",
+    "pair_created": 1792062274000,
+    "website": "",
+    "telegram": "",
+    "twitter": "https://x.com/bentodar/status/2110701358886396375?s=46",
+    "discord": "",
+    "found_at": "2026-10-15T12:32:43+00:00",
+    "source": "DexScreener",
+    "liquidity": 17202.4,
+    "mcap": 36641,
+    "stage": "trading",
+    "bond_pct": null,
+    "dex": "pancakeswap",
+    "soon": false,
+    "updated_at": "2026-10-15T12:53:01+00:00"
+  },
+  {
+    "id": "solana:3exxUnnLxCb4SVFG39YcUbTjuRzuzRpHdbK5cUaLpump",
+    "name": "Cosmo Grok Companion",
+    "symbol": "Cosmo",
+    "chain": "solana",
+    "address": "3exxUnnLxCb4SVFG39YcUbTjuRzuzRpHdbK5cUaLpump",
+    "dex_url": "https://dexscreener.com/solana/3exxunnlxcb4svfg39ycubtjurzuzrphdbk5cualpump",
+    "pair_created": 1752757671000,
+    "website": "",
+    "telegram": "",
+    "twitter": "https://x.com/grok/status/2110697053210738723?s=20",
+    "discord": "",
+    "found_at": "2026-10-15T12:32:43+00:00",
+    "source": "DexScreener",
+    "liquidity": 0,
+    "mcap": 11556.18,
+    "stage": "bonding",
+    "bond_pct": 17,
+    "dex": "pumpfun",
+    "soon": false,
+    "updated_at": "2026-10-15T12:53:01+00:00"
   }
 ]
